@@ -4,13 +4,15 @@ function [ph, ph_NoRot] = PlantPhantom(N, n, delta, highContrast)
 % Finally a small rotational error of at most delta is added to each layer.
 %
 % Tommi Heikkilä 2018
-% Last edited 8.1.2020
+% Last edited 8.9.2020
 %
 % INPUTS
 % N             resolution of the phantom
 % n             number of time frames, has to be at least 10!
 % delta         rotational error
-% highContrast  High contrast 'iodine' on/off (1/0)
+%
+% OPTIONAL INPUT
+% highContrast  High contrast 'iodine' on/off (on by default)
 %
 % OUTPUTS
 % ph       Desired phantom with the rotational error added
@@ -34,9 +36,14 @@ end
 if n < 10
     error('At least 10 time frames are required!')
 end
-
+if n > 64
+    warning('The spread of fluid may not be smooth with this many times steps.')
+end
 if N < 32
-    warning('Consider increasing the resolution!')
+    warning('Consider increasing the spatial resolution!')
+end
+if nargin  < 4
+    highContrast = 1; % Highly contrasting fluid is default setting
 end
 
 ph = zeros([N N n]);
@@ -44,7 +51,7 @@ ph_NoRot = ph;
 layer = zeros(N);
 stagestep = floor((n-5)/5);
 stages = 1:stagestep:n-4;
-% Note that this vector does not scale with n!
+% Note that this vector does not scale with n
 radii = [0.1,0.12,0.15,0.2,0.22,0.25,0.27,0.3];
 
 % Outer border
